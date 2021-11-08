@@ -1,5 +1,14 @@
-## Oystecard
+## Oystecard Challenge   🚌
 
+### Description
+Aa complex system which mocks a program that allows a user to use a oystercard.<br />
+Created using TDD, Ruby and object-orientation design principles.
+
+* **Languages used**: Ruby
+* **Testing frameworks**: RSpec
+
+
+### User Stories
 ```
 In order to use public transport
 As a customer
