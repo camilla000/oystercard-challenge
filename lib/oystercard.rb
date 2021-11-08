@@ -1,4 +1,5 @@
 require_relative 'station'
+require_relative 'journey'
 
 class Oystercard
   MAXIMUM_BALANCE = 90
@@ -23,8 +24,11 @@ class Oystercard
 
   def touch_in(station)
     raise 'Insufficient balance to touch in' if balance < MINIMUM_FARE
+    @entry_station = station
+    @journeys << { entry_station: @entry_station, exit_station: @exit_station }
 
-    record_journey(station)
+
+    # record_journey(station)
   end
 
   def touch_out(station)
