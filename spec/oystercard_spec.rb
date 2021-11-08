@@ -1,7 +1,9 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:station) { double :station }
+  let(:entry_station) { double :station }
+  let(:exit_station) { double :station }
+  let(:journey) { { entry_station: entry_station, exit_station: exit_station } }
 
   it 'has a balance of zero' do
     expect(subject.balance).to eq(0)
@@ -16,7 +18,7 @@ describe Oystercard do
 
     it 'raises an error if the maximum balance is exceeded' do
       maximum_balance = Oystercard::MAXIMUM_BALANCE
-      subject.top_up maximum_balance
+      subject.top_up(maximum_balance)
       expect { subject.top_up 1 }.to raise_error "Maximum balance of #{maximum_balance} exceeded"
     end
   end
@@ -28,28 +30,41 @@ describe Oystercard do
 
   it 'can touch in' do
     subject.top_up(10)
-    subject.touch_in(station)
+    subject.touch_in(entry_station)
     expect(subject).to be_in_journey
-  end
-  it 'stores the entry station' do
-    subject.top_up(10)
-    subject.touch_in(station)
-    expect(subject.entry_station).to eq station
-  end
-
-  it 'will not touch in if below minimum balance' do
-    expect { subject.touch_in(station) }.to raise_error 'Insufficient balance to touch in'
   end
 
   it 'can touch out' do
-    subject.top_up(5)
-    subject.touch_in(station)
-    subject.touch_out
+    subject.top_up(15)
+    subject.touch_in(entry_station)
+    subject.touch_out(exit_station)
     expect(subject).not_to be_in_journey
   end
+
+  it 'stores the entry station' do
+    subject.top_up(10)
+    subject.touch_in(entry_station)
+    expect(subject.entry_station).to eq entry_station
+  end
+
+  it 'will not touch in if below minimum balance' do
+    expect { subject.touch_in(entry_station) }.to raise_error 'Insufficient balance to touch in'
+  end
+
   it 'charges card when touched out' do
     subject.top_up(5)
-    subject.touch_in(station)
-    expect { subject.touch_out }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
+    subject.touch_in(entry_station)
+    expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
+  end
+
+  it 'has an empty list of journeys by default' do
+    expect(subject.journeys).to be_empty
+  end
+
+  it 'stores a journey' do
+    subject.top_up(15)
+    subject.touch_in(entry_station)
+    subject.touch_out(exit_station)
+    expect(subject.journeys).to include journey
   end
 end
